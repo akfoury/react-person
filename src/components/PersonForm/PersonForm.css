@@ -1,0 +1,30 @@
+.personForm {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    align-items: flex-start;
+}
+
+.personForm__item {
+    height: 20px;
+    width: 90%;
+    margin: 30px auto 30px auto;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+.personForm__item > label {
+    color: #004040;
+    font-weight: 700;
+}
+
+.personForm__item > input, select {
+    border: #004040 solid 1px;
+}
+
+input, select {
+    padding: 8px;
+}
