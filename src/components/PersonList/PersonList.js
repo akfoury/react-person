@@ -14,13 +14,15 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import SendIcon from '@material-ui/icons/Send';
 import EditIcon from '@material-ui/icons/Edit';
-import { putFormDataAsJson, deletePerson } from '../../api/PersonAPI';
+import { putFormDataAsJson, deletePerson, getAllPersonSorteredByColumn } from '../../api/PersonAPI';
 import { convertFormDataToObject } from '../../utils/FormData';
 import { getListOfFilteredID } from '../../utils/ListFilter';
+import Button from '@material-ui/core/Button';
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 
 // Initialisation des valeurs de filtres
-const initialFilteredPerson = {
+const initialFilteredPersonList = {
     id: '',
     firstname: '',
     lastname: '',
@@ -28,11 +30,21 @@ const initialFilteredPerson = {
     isActive: ''
 }
 
+const initialSortPersonList = {
+    id: false,
+    firstname: false,
+    lastname: false,
+    address: false,
+    isActive: false
+}
+
 export default function PersonList({ setPersonList, personList }) {
     const classes = useStyles();
     const [editedRowIndex, setEditedRowIndex] = useState(null);
-    const [filterOptions, setFilterOptions]  = useState(initialFilteredPerson);
+    const [filterOptions, setFilterOptions]  = useState(initialFilteredPersonList);
     const [filteredListPerson, setFilteredListPerson] = useState([]);
+    const [sortColumnsStatus, setSortColumnsStatus] = useState(initialSortPersonList);
+    const [actualColumnSorted, setActualColumnSorted] = useState("id");
 
     // Gestion du state stockant les valeurs de filtrage
     const handleFormFilterInput = (e) => {
@@ -46,7 +58,7 @@ export default function PersonList({ setPersonList, personList }) {
     const toggleIsEditing = (e) => {
         if ($(e.currentTarget).attr('class').includes('editableIcon')) {
             const personID = $($(e.currentTarget).parents()[3]).find('.personID').text();
-            const editableIndex = personList.findIndex(item => parseInt(item.id) === parseInt(personID));
+            const editableIndex = filteredListPerson.findIndex(item => parseInt(item.id) === parseInt(personID));
             setEditedRowIndex(editableIndex);
         }
     }   
@@ -74,14 +86,13 @@ export default function PersonList({ setPersonList, personList }) {
 
         // Récupérer les données du formulaire
         const personID = $(e.currentTarget).find('.personID').find('input').attr('value');
-        const updateIndex = personList.findIndex(item => parseInt(item.id) === parseInt(personID));
+        const updateIndex = filteredListPerson.findIndex(item => parseInt(item.id) === parseInt(personID));
         const url = `person/${personID}`;
 
         try {
             // Requête PUT
             const { formData, _} = convertFormDataToObject(e);
             let responseData = await putFormDataAsJson({ formData, url });
-            console.log(responseData);
 
             // Mise à jour de la liste des utilisateurs
             setPersonList(prevState => {
@@ -94,6 +105,15 @@ export default function PersonList({ setPersonList, personList }) {
         }
     }
 
+    const sortColumn = (col) => {
+        setSortColumnsStatus(prevState => {
+            return {...prevState, [col]: !sortColumnsStatus[col]}
+        });
+        console.log(col);
+        setActualColumnSorted(col);
+        $('.columnFilter').val("");
+    }
+
     // Initialisation du state stockant la liste filtrée
     useEffect(() => {
         setFilteredListPerson(personList);
@@ -102,13 +122,27 @@ export default function PersonList({ setPersonList, personList }) {
     // Appel à l'algorithme à chaque fois qu'une valeur de filtrage change
     useEffect(() => {
         const filteredID = getListOfFilteredID(filterOptions, personList);
-        console.log(typeof(filteredID[0]))
         if (filteredID.length != 0) {
             setFilteredListPerson(personList.filter((item, index) => filteredID.includes(String(item.id))));
         }
     }, [filterOptions]);
 
-    console.log(filteredListPerson);
+    useEffect(() => {
+        if (sortColumnsStatus[actualColumnSorted]) {
+            console.log(actualColumnSorted);
+            console.log(sortColumnsStatus[actualColumnSorted]);
+            console.log('true');
+            getAllPersonSorteredByColumn(actualColumnSorted, "desc").then(data => {
+                setFilteredListPerson(data);
+            }); 
+        } else {
+            console.log('false');
+            getAllPersonSorteredByColumn(actualColumnSorted, "asc").then(data => {
+                setFilteredListPerson(data);
+            }); 
+        }
+    }, [actualColumnSorted, sortColumnsStatus]);
+
 
     return (
         <>
@@ -118,27 +152,27 @@ export default function PersonList({ setPersonList, personList }) {
                     <ListItem className={classes.listItem} style={{ backgroundColor: '#9AC2C980' }}>
                         <ListItemText
                             disableTypography
-                            primary={<Typography type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>ID</Typography>}
+                            primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }} onClick={() => sortColumn("id")} endIcon={<FilterListIcon />}>ID</Button>}
                             className={classes.listItemText}
                         />
                         <ListItemText
                             disableTypography
-                            primary={<Typography type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Prénom</Typography>}
+                            primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }} onClick={() => sortColumn("firstname")} endIcon={<FilterListIcon />}>Prénom</Button>}
                             className={classes.listItemText}
                         />
                         <ListItemText
                             disableTypography
-                            primary={<Typography type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Nom</Typography>}
+                            primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }} onClick={() => sortColumn("lastname")} endIcon={<FilterListIcon />}>Nom</Button>}
                             className={classes.listItemText}
                         />
                         <ListItemText
                             disableTypography
-                            primary={<Typography type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Adresse</Typography>}
+                            primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }} onClick={() => sortColumn("address")} endIcon={<FilterListIcon />}>Adresse</Button>}
                             className={classes.listItemText}
                         />
                         <ListItemText
                             disableTypography
-                            primary={<Typography type="body2" style={{ fontWeight: 700, width: 10, color: '#004040', paddingRight: 30 }}>Actif</Typography>}
+                            primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040', paddingRight: 30 }} onClick={() => sortColumn("isActive")} endIcon={<FilterListIcon />}>Actif</Button>}
                             className={classes.listItemText}
                         />
                         <ListItemSecondaryAction>
@@ -163,7 +197,7 @@ export default function PersonList({ setPersonList, personList }) {
                                 primary={
                                 <div style={{ display: "flex", justifyContent: "flex-start", width: '100%' }}>
                                     <input
-                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline"
+                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline columnFilter"
                                         defaultValue={filterOptions["id"]}
                                         onChange={handleFormFilterInput}
                                         name={"id"}
@@ -178,7 +212,7 @@ export default function PersonList({ setPersonList, personList }) {
                                 primary={
                                 <div style={{ display: "flex", justifyContent: "flex-start", width: '100%' }}>
                                     <input
-                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline"
+                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline columnFilter"
                                         defaultValue={filterOptions["firstname"]}
                                         onChange={handleFormFilterInput}
                                         name={"firstname"}
@@ -193,7 +227,7 @@ export default function PersonList({ setPersonList, personList }) {
                                 primary={
                                 <div style={{ display: "flex", justifyContent: "flex-start", width: '100%' }}>
                                     <input
-                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline"
+                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline columnFilter"
                                         defaultValue={filterOptions["lastname"]}
                                         onChange={handleFormFilterInput}
                                         name={"lastname"}
@@ -208,7 +242,7 @@ export default function PersonList({ setPersonList, personList }) {
                                 primary={
                                 <div style={{ display: "flex", justifyContent: "flex-start", width: '100%' }}>
                                     <input
-                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline"
+                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline columnFilter"
                                         defaultValue={filterOptions["address"]}
                                         onChange={handleFormFilterInput}
                                         name={"address"}
@@ -223,7 +257,7 @@ export default function PersonList({ setPersonList, personList }) {
                                 primary={
                                 <div style={{ display: "flex", justifyContent: "flex-start", width: '70%' }}>
                                     <input
-                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline"
+                                        className="MuiTypography-root MuiTypography-h7 MuiTypography-displayInline columnFilter"
                                         defaultValue={filterOptions["isActive"]}
                                         onChange={handleFormFilterInput}
                                         name={"isActive"}
@@ -265,7 +299,7 @@ export default function PersonList({ setPersonList, personList }) {
                                     className={classes.listItemText}
                                 />
                                 <ListItemSecondaryAction>
-                                    <IconButton edge="end" aria-label="delete" type="submit">
+                                    <IconButton edge="end" aria-label="edit" type="submit">
                                         <SendIcon 
                                             style={{fill: "#008080"}} 
                                         />
@@ -297,7 +331,7 @@ export default function PersonList({ setPersonList, personList }) {
                             />
                             <ListItemText
                             disableTypography
-                            primary={<Typography type="body2">{item.isActive ? '1' : '0'}</Typography>}
+                            primary={<Typography type="body2">{parseInt(item.isActive) ? '1' : '0'}</Typography>}
                             className={classes.listItemText}
                             />
                         <ListItemSecondaryAction>
@@ -312,19 +346,21 @@ export default function PersonList({ setPersonList, personList }) {
                             <CloseIcon 
                                 style={{fill: "#008080"}} 
                                 onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     const personID = $($(e.currentTarget).parents()[3]).find('.personID').text();
-                                    deletePerson(e, personID).then(() => {
+                                    deletePerson(personID).then(() => {
                                         // Récuperer l'index de l'élément à supprimer
-                                        const removeIndex = personList.findIndex(item => item.id === parseInt(personID));
+                                        const removeIndex = filteredListPerson.findIndex(item => item.id === parseInt(personID));
                                     
                                         // Faire une copie du state
-                                        const newArray = [...personList];
+                                        const newArray = [...filteredListPerson];
                                     
                                         // Supprimer l'élément du nouveau tableau
                                         newArray.splice(removeIndex, 1);
                                     
                                         // Mettre à jour le state
-                                        setPersonList(newArray);
+                                        setFilteredListPerson(newArray);
                                     });
                                 }} 
                             />

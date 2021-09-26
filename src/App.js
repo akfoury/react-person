@@ -10,7 +10,7 @@ const initialState = {
   firstname: '',
   lastname: '',
   address: '',
-  isActive: 'true'
+  isActive: '1'
 }
 
 function App() {
@@ -25,7 +25,6 @@ function App() {
       .then(data => setPersonList(data));
   }, []);
 
-  console.log(personList);
   return (
     <div className="App">
       <PersonForm setPersonList={setPersonList} setFormData={setFormData} formData={formData} style={{ backgroundColor: '#1169cf' }} initialState={initialState} />

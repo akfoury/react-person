@@ -1,5 +1,3 @@
-import $ from "jquery";
-
 // Récupérer toutes les personnes de la base de données
 const getAllPerson = async () => {
     const myInit = {
@@ -17,6 +15,20 @@ const getAllPerson = async () => {
             throw response;
         });
 }
+
+// Récupérer toutes les personnes de la base de données triées selon une colonne
+const getAllPersonSorteredByColumn = async (colName, direction) => {
+    const myInit = {
+        method: 'GET',
+    };
+    return await fetch(`person/${colName}/${direction}`, myInit)
+        .then(response => {
+            if(response.ok) {
+                return response.json();
+            }
+            throw response;
+        });
+};
 
 // Récupérer une ou toutes les personnes de la base de données
 const postFormDataAsJson = async ({ formData, url }) => {
@@ -44,7 +56,6 @@ const postFormDataAsJson = async ({ formData, url }) => {
 
 // Mettre à jour une personne
 const putFormDataAsJson = async ({ formData, url }) => {
-    console.log(formData);
     const plainFormData = Object.fromEntries(formData.entries());
     const formDataJsonString = JSON.stringify(plainFormData);
 
@@ -69,11 +80,11 @@ const putFormDataAsJson = async ({ formData, url }) => {
 
 
 // Supprimer une personne de la liste
-const deletePerson = async (e, personID) => {
+const deletePerson = async (personID) => {
     const myInit = {
         method: 'DELETE',
     };
     return await fetch(`person/${personID}`, myInit);
 };
 
-export { getAllPerson, postFormDataAsJson, putFormDataAsJson, deletePerson }
+export { getAllPerson, postFormDataAsJson, putFormDataAsJson, deletePerson, getAllPersonSorteredByColumn }
