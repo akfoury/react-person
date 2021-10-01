@@ -55,7 +55,7 @@ function FilterInputList({ personList, setPersonList }) {
 
     return (
         <form className="filterForm">
-            <ListItem className='list-item filters'>
+            <ListItem className='list-item filters' ContainerComponent="div">
                 <ListItemText
                     disableTypography
                     primary={<FilterInput filterOptions={filterOptions} optionName="id" handleFormFilterInput={handleFormFilterInput} />}

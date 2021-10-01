@@ -4,15 +4,22 @@ import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { postFormDataAsJson } from '../../api/PersonAPI';
 import { convertFormDataToObject } from '../../utils/FormData';
-import { addPersonList } from "../../actions";
+import { addPersonList, setFormData } from "../../actions";
 import { connect } from "react-redux";
 
-function PersonForm( { addPersonList, setFormData, formData, initialState }) {
+// Objet de réinitialisation du formulaire d'ajout
+const initialFormData = {
+    id: '',
+    firstname: '',
+    lastname: '',
+    address: '',
+    isActive: '1'
+}
+
+function PersonForm( { addPersonList, formData, setFormData }) {
     // Mise à jour du formulaire
     const stateUpdate = target => {
-        setFormData(prevState => {
-            return {...prevState, [target.name]: target.value};
-        });
+        setFormData(target.name, target.value);
     }
     
     // Gérer le formulaire de l'ajout d'une personne
@@ -22,18 +29,18 @@ function PersonForm( { addPersonList, setFormData, formData, initialState }) {
         try {
             const { formData, url } = convertFormDataToObject(e);
             let responseData = await postFormDataAsJson({ formData, url });
-            console.log(responseData);
+
             responseData = {...responseData, visibility: true};
             addPersonList(responseData);
-            setFormData(initialState);
+            setFormData(initialFormData);
         } catch (error) {
             console.error(error);
         }
     }
 
     return (
-        <form className="personForm" action="/person" onSubmit={handleFormSubmit} style={{ backgroundColor: '#9AC2C9'}}>
-            <h1 style={{paddingLeft: '24px', color: '#008080', fontWeight: '700'}}>Ajouter une Personne</h1>
+        <form className="personForm" action="/person" onSubmit={handleFormSubmit}>
+            <h1>Ajouter une Personne</h1>
             <div className="personForm__item">
                 <label>Prénom</label>
                 <input type="text" placeholder="Votre prénom" value={formData.firstname} name="firstname" onChange={e => stateUpdate(e.target)} required />
@@ -59,9 +66,7 @@ function PersonForm( { addPersonList, setFormData, formData, initialState }) {
                     color="primary" 
                     type="submit"
                     value="Ajouter Personne"
-                    style={{ borderRadius: 50 }} 
                     endIcon={<AddCircleOutlineIcon />}
-                    style={{backgroundColor: '#008080' }}
                 >
                     Ajouter Personne
                 </Button>
@@ -72,10 +77,12 @@ function PersonForm( { addPersonList, setFormData, formData, initialState }) {
 
 const mapStateToProps = state => {
     return {
+        formData: state.formData.formData
     }
 }
 const mapDispatchToProps = {
-    addPersonList
+    addPersonList,
+    setFormData
   }
   
 export default connect(mapStateToProps, mapDispatchToProps)(PersonForm);

@@ -1,13 +1,13 @@
 import { SET_PERSONLIST, ADD_PERSONLIST, DELETE_PERSONLIST, UPDATE_PERSONLIST } from "../actions/actions-types";
 
 const initialState = {
-    personList: [],
-    filteredPersonList: []
+    personList: []
 }
 
 export default function PersonListReducer(state = initialState, action) {
     switch(action.type) {
-        case SET_PERSONLIST: 
+        case SET_PERSONLIST:
+            console.log(action.payload);
             return {
                 ...state,
                 personList: [...action.payload]

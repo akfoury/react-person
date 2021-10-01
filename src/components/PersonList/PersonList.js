@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import './PersonList.css';
 import { convertFormDataToObject } from '../../utils/FormData';
 import { connect } from "react-redux";
+import { getAllPerson } from "../../api/PersonAPI";
 import { 
     putFormDataAsJson, 
     deletePerson
@@ -16,20 +17,27 @@ import {
     Grid,
     Typography,
     Button,
-    Chip
+    ButtonGroup,
+    Chip,
+    Select,
+    MenuItem,
+    FormControl
 } from '@mui/material';
 import {
     Close,
     Send,
-    Edit
+    Edit,
+    ArrowForward,
+    ArrowBack
 } from '@mui/icons-material';
-import { deletePersonList, updatePersonList } from "../../actions";
+import { setPersonList, deletePersonList, updatePersonList } from "../../actions";
 import FilterInputList from "../FilterInputList/FilterInputList";
 
 
-
-function PersonList({ personList, deletePersonList, updatePersonList }) {
+function PersonList({ personList, setPersonList, deletePersonList, updatePersonList }) {
     const [editedRowIndex, setEditedRowIndex] = useState(null);
+    const [pagination, setPagination] = useState(1);
+    const [numRows, setNumRows] = useState(20);
 
     // permet de switcher sur le mode édition d'une ligne
     const toggleIsEditing = (e) => {
@@ -45,12 +53,16 @@ function PersonList({ personList, deletePersonList, updatePersonList }) {
 
         // Récupérer l'id de la ligne
         const personID = e.currentTarget.dataset.iddelete;
+        console.log(personID);
 
         // Supprimer la personne
         const responseData = await deletePerson(personID);
 
+        console.log(personList);
+
         // Récuperer l'index de l'élément à supprimer
-        const removeIndex = personList.findIndex(item => item.id === parseInt(personID));
+        const removeIndex = personList.findIndex(item => parseInt(item.id) === parseInt(personID));
+        console.log(removeIndex);
 
         // Mettre à jour le state
         deletePersonList(removeIndex);
@@ -80,6 +92,7 @@ function PersonList({ personList, deletePersonList, updatePersonList }) {
         // Récupérer les données du formulaire
         const personID = e.currentTarget.querySelector('button[type=submit]').dataset.idsend;
         const updateIndex = personList.findIndex(item => parseInt(item.id) === parseInt(personID));
+        console.log(updateIndex);
         const url = `person/${personID}`;
 
         try {
@@ -97,62 +110,98 @@ function PersonList({ personList, deletePersonList, updatePersonList }) {
         }
     }
 
+    const incrementPagination = (e) => {
+        const direction = e.currentTarget.getAttribute('aria-label');
+
+        if (direction === "left-pagination") {
+            setPagination(prevState => prevState === 1 ? prevState : prevState - 1);
+        } else {
+            setPagination(prevState => prevState + 1);
+        }
+    }
+
+    const updatePagination = (e) => {
+        const re = /^[+]?\d+([.]\d+)?$/;
+    
+        // if value is not blank, then test the regex
+        if (e.target.value === '' || re.test(e.target.value)) {
+           setPagination(parseInt(e.target.value));
+        }
+    }
+
+    const updateNumRows = (e) => {
+        setNumRows(parseInt(e.target.value));
+    }
+
     useEffect(() => {
         document.querySelectorAll('.show').forEach((elem) => {
             elem.parentElement.style.display = "list-item";
         });
 
         document.querySelectorAll('.hide').forEach((elem) => {
-            console.log(elem);
             elem.parentElement.style.display = "none";
         });
     }, [personList]);
 
+    useEffect(() => {
+        getAllPerson(pagination, numRows)
+            .then(data => {
+                data = data.map(obj => ({...obj, visibility: true}));
+                setPersonList(data);
+            });
+    }, [pagination, numRows]);
+
+    console.log(personList);
+    console.log(numRows)
+
     return (
+        <div className="personList">
+        <Grid>
+            <ListItem className='list-item' style={{ backgroundColor: '#9AC2C980' }} ContainerComponent="div">
+                <ListItemText
+                    disableTypography
+                    primary={<Button type="body2">ID</Button>}
+                    className='list-item-text'
+                />
+                <ListItemText
+                    disableTypography
+                    primary={<Button type="body2">Prénom</Button>}
+                    className='list-item-text'
+                />
+                <ListItemText
+                    disableTypography
+                    primary={<Button type="body2">Nom</Button>}
+                    className='list-item-text'
+                />
+                <ListItemText
+                    disableTypography
+                    primary={<Button type="body2">Adresse</Button>}
+                    className='list-item-text'
+                />
+                <ListItemText
+                    disableTypography
+                    primary={<Button type="body2">Actif</Button>}
+                    className='list-item-text'
+                />
+                <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="delete" type="submit">
+                        <Send 
+                            style={{display: "none"}} 
+                        />
+                    </IconButton>
+                </ListItemSecondaryAction>
+                <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="delete" type="submit">
+                        <Send 
+                            style={{display: "none"}} 
+                        />
+                    </IconButton>
+                </ListItemSecondaryAction>
+            </ListItem>
+            <FilterInputList />
+        </Grid>
         <Grid item xs={16} md={12} className="grid">
             <List className='list'>
-                <ListItem className='list-item' style={{ backgroundColor: '#9AC2C980' }}>
-                    <ListItemText
-                        disableTypography
-                        primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>ID</Button>}
-                        className='list-item-text'
-                    />
-                    <ListItemText
-                        disableTypography
-                        primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Prénom</Button>}
-                        className='list-item-text'
-                    />
-                    <ListItemText
-                        disableTypography
-                        primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Nom</Button>}
-                        className='list-item-text'
-                    />
-                    <ListItemText
-                        disableTypography
-                        primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040' }}>Adresse</Button>}
-                        className='list-item-text'
-                    />
-                    <ListItemText
-                        disableTypography
-                        primary={<Button type="body2" style={{ fontWeight: 700, width: 10, color: '#004040', paddingRight: 30 }}>Actif</Button>}
-                        className='list-item-text'
-                    />
-                    <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete" type="submit">
-                            <Send 
-                                style={{display: "none"}} 
-                            />
-                        </IconButton>
-                    </ListItemSecondaryAction>
-                    <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete" type="submit">
-                            <Send 
-                                style={{display: "none"}} 
-                            />
-                        </IconButton>
-                    </ListItemSecondaryAction>
-                </ListItem>
-                <FilterInputList />
             {personList.length != 0 && personList.map((item, index) => (
                 index === editedRowIndex ? ( 
                     <form className="editForm" onSubmit={handleFormSubmit}>
@@ -236,6 +285,34 @@ function PersonList({ personList, deletePersonList, updatePersonList }) {
             )}
             </List>
         </Grid>
+        <Grid>
+            <List>
+                <ListItem className="pagination-listitem">
+                    <ButtonGroup>
+                        <IconButton edge="end" id="left-pagination" aria-label="left-pagination" onClick={incrementPagination}>
+                            <ArrowBack 
+                                style={{fill: "#008080"}} 
+                            />
+                        </IconButton>
+                        <input type="text" size="1" value={pagination} onChange={updatePagination} id="input-pagination"/>
+                        <IconButton edge="end" id="right-pagination" aria-label="right-pagination" onClick={incrementPagination}>
+                            <ArrowForward 
+                                style={{fill: "#008080"}} 
+                            />
+                        </IconButton>
+                    </ButtonGroup>
+                    <FormControl className="pagination-select">
+                        <Select defaultValue="20" value={numRows} onChange={updateNumRows} label="Pagination">
+                            <MenuItem value={20}>20</MenuItem>
+                            <MenuItem value={40}>40</MenuItem>
+                            <MenuItem value={60}>60</MenuItem>
+                            <MenuItem value={100}>100</MenuItem>
+                        </Select>
+                    </FormControl>
+                </ListItem>
+            </List>
+        </Grid>
+        </div>
     )
 }
 
@@ -245,6 +322,7 @@ const mapStateToProps = state => {
     }
 }
 const mapDispatchToProps = {
+    setPersonList,
     updatePersonList,
     deletePersonList
   }

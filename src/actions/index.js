@@ -1,4 +1,4 @@
-import { SET_PERSONLIST, ADD_PERSONLIST, DELETE_PERSONLIST, UPDATE_PERSONLIST } from "./actions-types";
+import { SET_PERSONLIST, ADD_PERSONLIST, DELETE_PERSONLIST, UPDATE_PERSONLIST, SET_FORMDATA } from "./actions-types";
 
 export const setPersonList = list => dispatch => {
     dispatch({type: SET_PERSONLIST, payload: list});
@@ -16,6 +16,9 @@ export const updatePersonList = (index, responseData) => dispatch => {
     dispatch({type: UPDATE_PERSONLIST, payload: [index, responseData]});
 }
 
+export const setFormData = (name, value) => dispatch => {
+    dispatch({type: SET_FORMDATA, payload: [name, value]});
+}
 
 
 

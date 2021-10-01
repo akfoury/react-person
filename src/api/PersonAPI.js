@@ -1,5 +1,5 @@
 // Récupérer toutes les personnes de la base de données
-const getAllPerson = async () => {
+const getAllPerson = async (pageNum, numRows) => {
     const myInit = {
         method: 'GET',
         headers: {
@@ -7,7 +7,7 @@ const getAllPerson = async () => {
         }
     };
 
-    return fetch('/person', myInit)
+    return fetch(`/person/${pageNum}/${numRows}`, myInit)
         .then(response => {
             if(response.ok) {
                 return response.json();
@@ -15,6 +15,7 @@ const getAllPerson = async () => {
             throw response;
         });
 }
+
 
 // Ajouter une personne à la base de données
 const postFormDataAsJson = async ({ formData, url }) => {
@@ -44,7 +45,6 @@ const postFormDataAsJson = async ({ formData, url }) => {
 const putFormDataAsJson = async ({ formData, url }) => {
     const plainFormData = Object.fromEntries(formData.entries());
     const formDataJsonString = JSON.stringify(plainFormData);
-    console.log(formDataJsonString);
 
     const fetchOptions = {
         method: "PUT",
@@ -56,7 +56,7 @@ const putFormDataAsJson = async ({ formData, url }) => {
     };
 
     const response = await fetch(url, fetchOptions);
-    console.log(response);
+
 
     if (!response.ok) {
         const errorMessage = response.text();
