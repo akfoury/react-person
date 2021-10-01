@@ -1,4 +1,85 @@
+.MuiGrid-root > ul {
+    padding: 0;
+}
 
-.MuiTypography-root .MuiTypography-h7 .MuiTypography-displayInline{
-    background-color: red;
+.grid {
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.grid::-webkit-scrollbar {
+    width: 10px;
+    padding: 1rem;
+    scrollbar-width: thin;
+}
+  
+.grid::-webkit-scrollbar-track {
+    background-color: #e4e4e4;
+    border-radius: 60px;
+}
+  
+.grid::-webkit-scrollbar-thumb {
+    border-radius: 100px;
+    border: 6px solid rgba(0, 0, 0, 0.18);
+    border-left: 0;
+    border-right: 0;
+    background-color: #008080;
+}
+
+.list {
+    padding: 0;
+}
+
+.list-item {
+    background-color: 'none';
+    display: 'flex';
+    justify-content: 'flex-start';
+    flex: 1 1 auto;
+}
+
+.list-item:hover {
+    background-color: rgba(0,0,0,0.05);
+    cursor: 'pointer';
+    padding: 4;
+    width: 100%;
+}
+
+.list-item-text {
+    text-align: center;
+}
+
+.list-item-text:nth-child(1) {
+    flex-basis: 10%;
+}
+
+.list-item-text:nth-child(2) {
+    flex-basis: 20%;
+}
+
+.list-item-text:nth-child(3) {
+    flex-basis: 20%;
+}
+
+.list-item-text:nth-child(4) {
+    flex-basis: 30%;
+}
+
+.list-item-text:nth-child(5) {
+    flex-basis: 20%;
+}
+
+.list-item-text:nth-child(5) > .filterInput > input{
+    width: 80%;
+}
+
+button {
+    margin: 10px;
+}
+
+.show {
+    display: block;
+}
+
+.hide {
+    display: none;
 }

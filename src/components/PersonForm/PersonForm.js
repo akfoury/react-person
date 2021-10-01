@@ -1,11 +1,13 @@
 import React from 'react';
 import './PersonForm.css';
-import Button from '@material-ui/core/Button';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import Button from '@mui/material/Button';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { postFormDataAsJson } from '../../api/PersonAPI';
 import { convertFormDataToObject } from '../../utils/FormData';
+import { addPersonList } from "../../actions";
+import { connect } from "react-redux";
 
-export default function PersonForm( { setPersonList, setFormData, formData, initialState }) {
+function PersonForm( { addPersonList, setFormData, formData, initialState }) {
     // Mise à jour du formulaire
     const stateUpdate = target => {
         setFormData(prevState => {
@@ -19,10 +21,10 @@ export default function PersonForm( { setPersonList, setFormData, formData, init
     
         try {
             const { formData, url } = convertFormDataToObject(e);
-            const responseData = await postFormDataAsJson({ formData, url });
-            setPersonList(prevState => {
-                return [responseData, ...prevState];
-            });
+            let responseData = await postFormDataAsJson({ formData, url });
+            console.log(responseData);
+            responseData = {...responseData, visibility: true};
+            addPersonList(responseData);
             setFormData(initialState);
         } catch (error) {
             console.error(error);
@@ -47,8 +49,8 @@ export default function PersonForm( { setPersonList, setFormData, formData, init
             <div className="personForm__item">
                 <label>Actif</label>
                 <select onChange={e => stateUpdate(e.target)} value={formData.isActive} name="isActive">
-                    <option value="true">Oui</option>
-                    <option value="false">Non</option>
+                    <option value="1">Oui</option>
+                    <option value="0">Non</option>
                 </select>
             </div>
             <div className="personForm__item">
@@ -68,4 +70,12 @@ export default function PersonForm( { setPersonList, setFormData, formData, init
     )
 }
 
-
+const mapStateToProps = state => {
+    return {
+    }
+}
+const mapDispatchToProps = {
+    addPersonList
+  }
+  
+export default connect(mapStateToProps, mapDispatchToProps)(PersonForm);

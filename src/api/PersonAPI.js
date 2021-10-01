@@ -7,7 +7,7 @@ const getAllPerson = async () => {
         }
     };
 
-    return await fetch('/person', myInit)
+    return fetch('/person', myInit)
         .then(response => {
             if(response.ok) {
                 return response.json();
@@ -16,21 +16,7 @@ const getAllPerson = async () => {
         });
 }
 
-// Récupérer toutes les personnes de la base de données triées selon une colonne
-const getAllPersonSorteredByColumn = async (colName, direction) => {
-    const myInit = {
-        method: 'GET',
-    };
-    return await fetch(`person/${colName}/${direction}`, myInit)
-        .then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-            throw response;
-        });
-};
-
-// Récupérer une ou toutes les personnes de la base de données
+// Ajouter une personne à la base de données
 const postFormDataAsJson = async ({ formData, url }) => {
     const plainFormData = Object.fromEntries(formData.entries());
     const formDataJsonString = JSON.stringify(plainFormData);
@@ -58,6 +44,7 @@ const postFormDataAsJson = async ({ formData, url }) => {
 const putFormDataAsJson = async ({ formData, url }) => {
     const plainFormData = Object.fromEntries(formData.entries());
     const formDataJsonString = JSON.stringify(plainFormData);
+    console.log(formDataJsonString);
 
     const fetchOptions = {
         method: "PUT",
@@ -69,9 +56,10 @@ const putFormDataAsJson = async ({ formData, url }) => {
     };
 
     const response = await fetch(url, fetchOptions);
+    console.log(response);
 
     if (!response.ok) {
-        const errorMessage = await response.text();
+        const errorMessage = response.text();
         throw new Error(errorMessage);
     }
 
@@ -82,9 +70,22 @@ const putFormDataAsJson = async ({ formData, url }) => {
 // Supprimer une personne de la liste
 const deletePerson = async (personID) => {
     const myInit = {
-        method: 'DELETE',
+        method: 'DELETE'
     };
-    return await fetch(`person/${personID}`, myInit);
+    console.log(personID);
+    const response = await fetch(`person/${personID}`, myInit);
+
+    return response;
 };
 
-export { getAllPerson, postFormDataAsJson, putFormDataAsJson, deletePerson, getAllPersonSorteredByColumn }
+// Supprimer toutes les personnes de la liste
+const deleteAllPerson = async () => {
+    const myInit = {
+        method: 'DELETE'
+    };
+    const response = await fetch('person/', myInit);
+
+    return response;
+}
+
+export { getAllPerson, postFormDataAsJson, putFormDataAsJson, deletePerson, deleteAllPerson }
